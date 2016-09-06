@@ -9,6 +9,24 @@ and keeping the number of components in the PoC VPP-Calico project to a minimum.
 
 ### Usage
 
+```
+python -i agent.py "calico/ipam/v2/assignment/ipv4/block" 1 192.168.1.10 24
+```
+
+* calico/ipam/v2/assignment/ipv4/block - The ETCD Tree to listen on for events (creates)
+* 1 - The VPP Interface index number for our uplink / multi-host reachability.
+* 192.168.1.10 - The IP address we want to configure on our VPP uplink.
+* 24 - The subnet in CIDR notation for our VPP Uplink interface.
+
+#### Optional Parameters
+
+```
+python -i agent.py "calico/ipam/v2/assignment/ipv4/block" 1 192.168.1.10 24 <etcd_protocol> <etcd_host> <etcd_port> <etcd_user> <etcd_password>
+```
+Defaults to localhost:4000 via HTTP with no authentication.
+
+
+
 
 ### Investigation
 
