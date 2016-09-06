@@ -46,18 +46,18 @@ However, unless manual IPAM crafting is being done, containers in need of an IP 
 
 ### Implimentation
 
-The script uses it's host name to known which subpath of the ```calico/ipam/v2/host``` entries to ignore (as it's own host entries are already local routes).
-On startup, we read the IP address from the 'VPP uplink interface' and store into ```/vpp-calico/hosts/<hostname>/peerip/ipv4/1``` as an IP address for use in building routes to other calico-vpp hosts.
+The script uses it's host name to known which entries in ```calico/assignment/ipv4/block``` to ignore (as it's own host entries are already local routes).
+On startup, we provide the address for the 'VPP uplink interface' and store into ```/vpp-calico/hosts/<hostname>/peerip/ipv4/1``` as an IP address for use in building routes to other calico-vpp hosts.
 
-Once running, the script simply waits for new blocks on other hosts and programs those into the local VPP FIB, using the next hop IP from ```/vpp-calico/hosts/<hostname>/peerip/ipv4/1``` for the relevant ```<hostname>```.
+Once running, the script simply waits (watcher on the ```/calico/ipam/v2/assignment/ipv4/block``` tree) for new blocks on other hosts and programs those into the local VPP FIB, using the next hop IP from ```/vpp-calico/hosts/<hostname>/peerip/ipv4/1``` for the relevant ```<hostname>```.
 
-We're using the 'ConMan' module in python, which builds on the regular python etcd client library. There are a few benefits here:
+We're using the 'Configuration Manager / ConMan' module in python, (from: https://github.com/the-gigi/conman/ ) which builds on the regular python etcd client library. There are a few benefits here:
     * Takes care of threading for non-blocking watches of multiple etcd keys.
     * Allows us to simply specify our own function as a callback for a change event.
 
 ### Drawbacks
-* We're currently not looking at deletions
+* We're currently not looking at deletions.
 * We're still going to need BGP/Routing protocol in future to cover /32 and more complex usecases.
-* We're putting more load on ETCD.
+* We're putting more load on ETCD. However, this is read. See below.
 
 Immediately, I can think of a re-write where this agent run's in one location and parses the needed routes into a single per-host ```/vpp-calico``` subtree vs each hosts having to listen on all *other* hosts IPAM tree's. However, the current scenario doesn't depend on a single host to do the processing, so will likley be more survivable, albeit creating more *READ* load on ETCD, etcd however is pretty good with read loads, just struggles with many writes.
