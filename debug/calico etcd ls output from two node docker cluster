@@ -1,0 +1,78 @@
+root@cni-worker1:/vagrant# etcdctl ls --recursive
+/calico
+/calico/v1
+/calico/v1/config
+/calico/v1/config/IpInIpEnabled
+/calico/v1/ipam
+/calico/v1/ipam/v4
+/calico/v1/ipam/v4/pool
+/calico/v1/ipam/v4/pool/192.168.0.0-16
+/calico/v1/Ready
+/calico/v1/host
+/calico/v1/host/cni-worker1
+/calico/v1/host/cni-worker1/workload
+/calico/v1/host/cni-worker1/workload/docker
+/calico/v1/host/cni-worker1/workload/docker/61757f6edaefa5087bb5e97e1ff51d45d724e8745887d843880ddc763b38502d
+/calico/v1/host/cni-worker1/workload/docker/61757f6edaefa5087bb5e97e1ff51d45d724e8745887d843880ddc763b38502d/endpoint
+/calico/v1/host/cni-worker1/workload/docker/61757f6edaefa5087bb5e97e1ff51d45d724e8745887d843880ddc763b38502d/endpoint/54e46fe6708111e680d0020cbd2b48c2
+/calico/v1/host/cni-worker1/workload/docker/ffeb480a83eb3a7148ab061333a98258fd5ba985f5761b088c8baf81aa52e10d
+/calico/v1/host/cni-worker1/workload/docker/ffeb480a83eb3a7148ab061333a98258fd5ba985f5761b088c8baf81aa52e10d/endpoint
+/calico/v1/host/cni-worker1/workload/docker/ffeb480a83eb3a7148ab061333a98258fd5ba985f5761b088c8baf81aa52e10d/endpoint/5334fe2c708111e680d0020cbd2b48c2
+/calico/v1/host/cni-worker2
+/calico/v1/host/cni-worker2/workload
+/calico/v1/host/cni-worker2/workload/docker
+/calico/v1/host/cni-worker2/workload/docker/9d5d715b9ffd8a73ec06a84872119d48f188d5437a6bc3790f57444875b00f3d
+/calico/v1/host/cni-worker2/workload/docker/9d5d715b9ffd8a73ec06a84872119d48f188d5437a6bc3790f57444875b00f3d/endpoint
+/calico/v1/host/cni-worker2/workload/docker/9d5d715b9ffd8a73ec06a84872119d48f188d5437a6bc3790f57444875b00f3d/endpoint/55d4a7ae708111e68b800800275c1e01
+/calico/v1/host/cni-worker2/workload/docker/ee927aee3901763589feabafb6991a492e90751e3d484e5a0edb0c1679a0c23c
+/calico/v1/host/cni-worker2/workload/docker/ee927aee3901763589feabafb6991a492e90751e3d484e5a0edb0c1679a0c23c/endpoint
+/calico/v1/host/cni-worker2/workload/docker/ee927aee3901763589feabafb6991a492e90751e3d484e5a0edb0c1679a0c23c/endpoint/5771b7be708111e68b800800275c1e01
+/calico/v1/policy
+/calico/v1/policy/profile
+/calico/v1/policy/profile/PROF_ALL
+/calico/v1/policy/profile/PROF_ALL/rules
+/calico/v1/policy/profile/PROF_ALL/tags
+/calico/v1/policy/profile/PROF_ALL/labels
+/calico/ipam
+/calico/ipam/v2
+/calico/ipam/v2/assignment
+/calico/ipam/v2/assignment/ipv4
+/calico/ipam/v2/assignment/ipv4/block
+/calico/ipam/v2/assignment/ipv4/block/192.168.0.0-26
+/calico/ipam/v2/assignment/ipv4/block/192.168.11.0-26
+/calico/ipam/v2/host
+/calico/ipam/v2/host/cni-worker1
+/calico/ipam/v2/host/cni-worker1/ipv4
+/calico/ipam/v2/host/cni-worker1/ipv4/block
+/calico/ipam/v2/host/cni-worker1/ipv4/block/192.168.0.0-26
+/calico/ipam/v2/host/cni-worker2
+/calico/ipam/v2/host/cni-worker2/ipv4
+/calico/ipam/v2/host/cni-worker2/ipv4/block
+/calico/ipam/v2/host/cni-worker2/ipv4/block/192.168.11.0-26
+/calico/felix
+/calico/felix/v1
+/calico/felix/v1/host
+/calico/felix/v1/host/cni-worker1
+/calico/felix/v1/host/cni-worker1/last_reported_status
+/calico/felix/v1/host/cni-worker2
+/calico/felix/v1/host/cni-worker2/last_reported_status
+
+
+
+root@cni-worker1:/vagrant# etcdctl ls --recursive -p | grep -v '/$' | xargs -n 1 -I% sh -c 'echo -n %:; etcdctl get %;'
+/calico/v1/ipam/v4/pool/192.168.0.0-16:{"masquerade": true, "cidr": "192.168.0.0/16", "ipip": "tunl0"}
+/calico/v1/Ready:true
+/calico/v1/host/cni-worker1/workload/docker/ffeb480a83eb3a7148ab061333a98258fd5ba985f5761b088c8baf81aa52e10d/endpoint/5334fe2c708111e680d0020cbd2b48c2:{"name": "cali5334fe2c708", "labels": {}, "state": "active", "ipv6_nets": [], "mac": "56:96:fe:72:76:60", "ipv4_nets": ["192.168.0.1/32"], "profile_ids": ["PROF_ALL"]}
+/calico/v1/host/cni-worker1/workload/docker/61757f6edaefa5087bb5e97e1ff51d45d724e8745887d843880ddc763b38502d/endpoint/54e46fe6708111e680d0020cbd2b48c2:{"name": "cali54e46fe6708", "labels": {}, "state": "active", "ipv6_nets": [], "mac": "7e:dd:5e:26:00:cf", "ipv4_nets": ["192.168.0.2/32"], "profile_ids": ["PROF_ALL"]}
+/calico/v1/host/cni-worker2/workload/docker/9d5d715b9ffd8a73ec06a84872119d48f188d5437a6bc3790f57444875b00f3d/endpoint/55d4a7ae708111e68b800800275c1e01:{"name": "cali55d4a7ae708", "labels": {}, "state": "active", "ipv6_nets": [], "mac": "3a:97:d9:aa:3c:40", "ipv4_nets": ["192.168.11.1/32"], "profile_ids": ["PROF_ALL"]}
+/calico/v1/host/cni-worker2/workload/docker/ee927aee3901763589feabafb6991a492e90751e3d484e5a0edb0c1679a0c23c/endpoint/5771b7be708111e68b800800275c1e01:{"name": "cali5771b7be708", "labels": {}, "state": "active", "ipv6_nets": [], "mac": "6a:a6:99:8a:3d:b2", "ipv4_nets": ["192.168.11.2/32"], "profile_ids": ["PROF_ALL"]}
+/calico/v1/policy/profile/PROF_ALL/tags:["PROF_ALL"]
+/calico/v1/policy/profile/PROF_ALL/labels:{}
+/calico/v1/policy/profile/PROF_ALL/rules:{"id": "PROF_ALL", "inbound_rules": [{"action": "allow", "src_tag": "PROF_ALL"}], "outbound_rules": [{"action": "allow"}]}
+/calico/v1/config/IpInIpEnabled:true
+/calico/ipam/v2/assignment/ipv4/block/192.168.0.0-26:{"affinity": "host:cni-worker1", "strict_affinity": false, "allocations": [null, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "unallocated": [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63], "attributes": [{"handle_id": null, "secondary": {}}], "cidr": "192.168.0.0/26"}
+/calico/ipam/v2/assignment/ipv4/block/192.168.11.0-26:{"affinity": "host:cni-worker2", "strict_affinity": false, "allocations": [null, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "unallocated": [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63], "attributes": [{"handle_id": null, "secondary": {}}], "cidr": "192.168.11.0/26"}
+/calico/ipam/v2/host/cni-worker2/ipv4/block/192.168.11.0-26:
+/calico/ipam/v2/host/cni-worker1/ipv4/block/192.168.0.0-26:
+/calico/felix/v1/host/cni-worker2/last_reported_status:{"uptime": 5.259813020999957, "first_update": true, "time": "2016-09-01T20:19:03Z"}
+/calico/felix/v1/host/cni-worker1/last_reported_status:{"uptime": 16.27048245399999, "first_update": true, "time": "2016-09-01T20:19:03Z"}
