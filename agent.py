@@ -59,18 +59,19 @@ class Program(object):
         if self.last_change == (key, action, value):
             logging.debug('Duplicate Update, Ingore! Key: %s Action: %s',key,action)
             return
+        if action != 'create':
+            logging.debug('Ignoring all actions apart from create. Key: %s Action: %s', key, action)
+            return
+
         logging.debug('Valid Update, Key: %s Action: %s Value: %s',key,action,value)
         self.last_change = (key, action, value)
         self.conman.refresh(self.key)
 
         # Convert our value data (json) into a dict.
         update_dict = json.loads(value)
-        print(type(update_dict))
-        print update_dict
-        print(update_dict['affinity'])
+        ourhost='host:'+ socket.gethostname()
 
-        ourhost='host:'+ hostname
-
+        # Check if the route update is for us
         if update_dict['affinity'] == str(ourhost):
            logging.debug('Block is on our host, ignoring update. Key: %s', key)
            return
@@ -78,16 +79,16 @@ class Program(object):
            logging.debug('Update IS for us, processing route: %s', key)
            logging.debug('Processing new block for host: %s Cidr: %s', update_dict['affinity'], update_dict['cidr'] )
 
+           # Update VPP Routing Table
 
-        # Update VPP Routing Table
 
     def run(self):
         self.conman.refresh(self.key)
-        print 'Refreshed key: %s', self.key
+        print 'Refreshed Tree: %s', self.key
         self.conman.watch(self.key)
-        print 'Watching key: %s', self.key
+        print 'Watching Tree: %s', self.key
         while True:
-            if self.conman[self.key].get('stop') == '1':
+            if self.conman[self.key].get('vppagentstop') == '1':
                 open(self.filename, 'a').write('Stopping...\n')
                 self.conman.stop_watchers()
                 return
