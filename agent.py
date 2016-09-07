@@ -66,7 +66,7 @@ class Program(object):
         # Configure Uplink IP address based on agent configuration (uplink_ip, uplink_subnet)
         uplink_ip = uplink_ip.encode('utf-8', 'ignore')
         uplink_ip = socket.inet_pton(socket.AF_INET, uplink_ip)
-        uplinkip_r = vpp_papi.sw_interface_add_del_address(vpp_uplink_interface_index,True,False,False,int(uplink.subnet),uplink_ip)
+        uplinkip_r = vpp_papi.sw_interface_add_del_address(self.vpp_uplink_interface_index,True,False,False,int(uplink_subnet),uplink_ip)
         if type(uplinkip_r) == list or uplinkip_r.retval != 0:
             logging.critical("Failed to add IPv4 address to uplink")
             return
@@ -82,6 +82,7 @@ class Program(object):
         if self.last_change == (key, action, value):
             logging.debug('Duplicate Update, Ingore! Key: %s Action: %s',key,action)
             return
+        # Calico regularly read+updates key contents to track IPAM. We just want new routes.
         if action != 'create':
             logging.debug('Ignoring all actions apart from create. Key: %s Action: %s', key, action)
             return
@@ -119,39 +120,33 @@ class Program(object):
            route_components = update_dict['cidr'].split("/")
            cidr = int(route_components[1])
            network = str(route_components[0])
-           logging.debug('Processing new route to host: %s hostIP: %s Network: %s Subnet: %s', re_result.group(1), route_via_ip, network, cidr)
-
            #Route-via destination in Binary format
            via_address = route_via_ip.encode('utf-8', 'ignore')
            via_address = socket.inet_pton(socket.AF_INET, via_address)
-
            #Subnet CIDR and Network in binary format.
            dst_address = network.encode('utf-8', 'ignore')
            dst_address = socket.inet_pton(socket.AF_INET, dst_address)
-
            #Other VPP API vars
            vpp_vrf_id = 0
            is_add = True
            is_ipv6 = False
            is_static = False
-
-           route_r = self.vpp_papi.ip_add_del_route(self.vpp_uplink_interface_index,
-                                               vpp_vrf_id,
-                                               False, 9, 0,
-                                               True, True,
-                                               is_add, False,
-                                               is_ipv6, False,
-                                               False, False,
-                                               False, 0,
-                                               cidr_int, dst_address,
-                                               via_address)
+           print('calling vpp_papi')
+           route_r = vpp_papi.ip_add_del_route(self.vpp_uplink_interface_index,
+                                             vpp_vrf_id,
+                                             False, 9, 0,
+                                             False, True,
+                                             is_add, False,
+                                             is_ipv6, False,
+                                             False, False,
+                                             False, 1,
+                                             cidr, dst_address,
+                                             via_address)
            if type(route_r) != list and route_r.retval == 0:
-               logging.debug("vppapi: added static route for %s", network)
+               logging.debug("vpp-route-agent: added static route for %s/%s via %s", network, cidr, route_via_ip)
            else:
-               logging.critical("vpp-route-agent: Could not add route to %s", network)
+               logging.critical("vpp-route-agent: Could not add route to %s/%s via %s", network, cidr, route_via_ip)
                return
-
-
     def run(self):
         self.conman.refresh(self.key)
         print 'Refreshed Tree: %s', self.key
@@ -163,11 +158,6 @@ class Program(object):
                 self.conman.stop_watchers()
                 return
             time.sleep(1)
-
-
-    #def vpp_add_route(self, isv6, destcidr, nexthop, dev):
-    #    _log.debug('Adding VPP Route, v6?: %s Dest: %s Nexthop %s Interface %s',isv6, destcidr, nexthop, dev)
-
 
 if __name__ == '__main__':
     Program(*sys.argv[1:])
