@@ -9,6 +9,8 @@ and keeping the number of components in the PoC VPP-Calico project to a minimum.
 
 This agent is PoC quality only. Please be careful.
 
+Also, this Agent expects a FIB2 compatible VPP-API. Therefore please use VPP builds from master, vs older releases.
+
 ### Usage
 Lets assume a three node cluster, with the calico ETCD server running on Host1.
 Let's also assume VPP is running on each host and there is an unconfigured ```IfIndex 1``` interface (for Example GigabitEthernet0/9/0) on each VPP instance.
